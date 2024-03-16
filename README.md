@@ -1,7 +1,10 @@
-### Ricochet Robots
+# Ricochet Robots
 The beginning...
 
-#TODO
+### TODO
 * everything
 
 More to come...
+
+# icons
+All icons are heavily inspired by the actual game, designed in Inkscape.
