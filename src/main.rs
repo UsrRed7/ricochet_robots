@@ -5,7 +5,7 @@ use eframe::egui;
 fn main() {
     let native_options = eframe::NativeOptions::default();
 
-    eframe::run_native("RicochetRobots", native_options, Box::new(|cc| Box::new(GUI::new(cc))));
+    let _ = eframe::run_native("RicochetRobots", native_options, Box::new(|cc| Box::new(GUI::new(cc))));
 }
 
 #[derive(Default)]
