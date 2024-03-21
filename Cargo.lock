@@ -2300,6 +2300,7 @@ name = "ricochet_robots"
 version = "0.1.0"
 dependencies = [
  "eframe",
+ "serde",
 ]
 
 [[package]]

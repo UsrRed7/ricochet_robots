@@ -1,50 +1,87 @@
+#![allow(dead_code)]
+
+const MAX_SHAPES: usize = 20;
+const MAX_COLORS: usize = 20;
+
 mod color {
+    use serde::{Serialize, Deserialize};
     use core::fmt;
+    use super::MAX_COLORS;
 
-    /// Flexible struct to allow for up to 256 unique "colors"
-    #[derive(PartialEq, Debug)]
-    pub struct ColorID {
-        color: u8,
+    /// Flexible struct to allow for up to MAX_COLORS unique colors
+    pub struct Color<'a> {
+        pallet: &'a ColorPallet,
+        id: u8,
     }
-
-    impl ColorID {
-        // comparison, casting
-    }
-
-    impl fmt::Display for ColorID {
+    
+    impl<'a> fmt::Display for Color<'a> {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            write!(f, "{}",
-                match self.color {
-                    0 => "Red",
-                    1 => "Yellow",
-                    2 => "Green",
-                    3 => "Blue",
-                    4 => "Black",
-                    5 => "Silver",
-                    _ => "Unknown",
-                }
-            )
+            write!(f, "{}", self.pallet.get_name(self.id))
         }
     }
 
-    struct Pallet {
-        // Be able to switch, import, change?
+    impl<'a> Color<'a> {
+        pub fn name(&self) -> &str {
+            self.pallet.get_name(self.id)
+        }
+
+        pub fn rgba(&self) -> [u8; 4] {
+            self.pallet.get_rgba(self.id)
+        }
+    }
+
+    #[derive(Serialize, Deserialize)]
+    struct ColorPallet {
+        names: [(String, [u8; 4]); MAX_COLORS],
+        oob: (String, [u8; 4]),
+    }
+
+    impl ColorPallet {
+        fn get_entry(&self, id: u8) -> &(String, [u8; 4]) {
+            if id as usize > MAX_COLORS {
+                &self.oob
+            } else {
+                &self.names[id as usize]
+            }
+        }
+
+        fn get_name(&self, id: u8) -> &str {
+            &self.get_entry(id).0
+        }
+
+        fn get_rgba(&self, id: u8) -> [u8; 4] {
+            self.get_entry(id).1
+        }
     }
 }
 
-pub mod Board {
-    use crate::game::color::ColorID;
+mod shape {
+    use serde::{Serialize, Deserialize};
+    use core::fmt;
+    use super::MAX_SHAPES;
 
-    enum Shape {
-        Circle,
-        Triange,
-        Square,
-        Hexagon,
+    /// Flexible struct to allow for up to MAX_SHAPES unique shapes
+    pub struct Shape<'b> {
+        shape_sources: &'b ShapeSources,
+        shape: u8,
     }
+    
+    impl<'b> Shape<'b> {
+        // pub fn get_color
+    }
+    
+    #[derive(Serialize, Deserialize)]
+    struct ShapeSources {
+        
+    }
+}
 
-    enum Spot {
-        Target { color: ColorID, shape: Shape },
-        Bouncer { color: ColorID, direction: bool },
+pub mod board {
+    use crate::game::{color::*, shape::*};
+
+    enum Spot<'a, 'b> {
+        Target { color: Color<'a>, shape: Shape<'b> },
+        Bouncer { color: Color<'a>, direction: bool },
         Empty,
     }
 
