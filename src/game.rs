@@ -1,8 +1,8 @@
 #![allow(dead_code)]
 
 pub mod board {
-    use serde::{Serialize, Deserialize};
     use bit_vec::BitVec;
+    use serde::{Deserialize, Serialize};
 
     #[derive(Serialize, Deserialize)]
     struct Icon {
@@ -79,7 +79,8 @@ pub mod board {
 
     /// Representation of each target type  
     /// Format: 0bKKKKCCCC  
-    /// K: Kind (Some may have special properties)  
+    /// K: Kind (Those with special properties below)  
+    /// 15 (0xfX) is wild (any color valid)  
     /// C: Color  
     struct Target {
         target: u8,
@@ -91,13 +92,13 @@ pub mod board {
         fn color<'a, 'b>(&'a self, pallet: &'b ColorPallet) -> &'b str {
             pallet.get_name(self.target & 0xf)
         }
-        
+
         fn rgba(&self, pallet: &ColorPallet) -> [u8; 4] {
             pallet.get_rgba(self.target & 0xf)
         }
     }
 
-    impl Target { // TODO: Maybe more functions for validation, Specials have type 15 then differient colors for each one i.e. rainbow?
+    impl Target {
         fn kind<'a, 'b>(&'a self, icons: &'b Icons) -> &'b str {
             icons.get_name(self.target & 0xf0)
         }
@@ -105,13 +106,26 @@ pub mod board {
         fn shape<'a, 'b>(&'a self, icons: &'b Icons) -> &'b Icon {
             icons.get_icon(self.target & 0xf0)
         }
+
+        // Checks first if the bot is on the correct spot, then true if wild, otherwise compare colors
+        fn win(&self, bot: &Bot) -> bool {
+            if self.x == bot.x && self.y == bot.y {
+                if self.target & 0xf0 == 0xf0 {
+                    return true;
+                }
+                self.target & 0xf == bot.bot &0xf
+            } else {
+                false
+            }
+        }
     }
 
     /// Representation of each feature type  
     /// Format: 0bKKKKCCCC  
     /// K: Kind (Each has different behaviour)  
+    /// 0 Bouncer: if colors match does nothing, otherwise bounces bots for no extra  
     /// C: Color  
-    struct Feature { // TODO: Probably add enum and functions/definitions for how each feature works/iteracts
+    struct Feature {
         feature: u8,
         x: u8,
         y: u8,
@@ -121,7 +135,7 @@ pub mod board {
         fn color<'a, 'b>(&'a self, pallet: &'b ColorPallet) -> &'b str {
             pallet.get_name(self.feature & 0xf)
         }
-        
+
         fn rgba(&self, pallet: &ColorPallet) -> [u8; 4] {
             pallet.get_rgba(self.feature & 0xf)
         }
@@ -130,6 +144,7 @@ pub mod board {
     /// Representation of each bot type  
     /// Format: 0bKKKKCCCC  
     /// K: Kind (Some may have special properties)  
+    /// 0 Basic: Move straight in any orthogonal direction till an object is hit  
     /// C: Color  
     struct Bot {
         bot: u8,
@@ -141,7 +156,7 @@ pub mod board {
         fn color<'a, 'b>(&'a self, pallet: &'b ColorPallet) -> &'b str {
             pallet.get_name(self.bot & 0xf)
         }
-        
+
         fn rgba(&self, pallet: &ColorPallet) -> [u8; 4] {
             pallet.get_rgba(self.bot & 0xf)
         }
@@ -157,8 +172,5 @@ pub mod board {
         horizontal_walls: Vec<BitVec>,
         targets: Vec<Target>,
         features: Vec<Feature>,
-
-        // Board spaces x, y or indexed
-        // vectors for each thing, or board with all
     }
 }
