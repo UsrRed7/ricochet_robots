@@ -173,4 +173,53 @@ pub mod board {
         targets: Vec<Target>,
         features: Vec<Feature>,
     }
+
+    enum Direction {
+        Up,
+        Right,
+        Down,
+        Left,
+    }
+
+    /// Compact object for move data  
+    /// Up to 6 special types (S)  
+    /// 4 directions (D)  
+    /// 0bSSSSSSDD  
+    struct Move(u8);
+
+    impl Move {
+        /// Currently no ability to make one with special flags TODO
+        fn new(dir: Direction) -> Self {
+            Move(match dir {
+                Direction::Up => 0,
+                Direction::Right => 1,
+                Direction::Down => 2,
+                Direction::Left => 3,
+            })
+        }
+
+        fn direction(&self) -> Direction {
+            match self.0 & 0b11 {
+                0 => Direction::Up,
+                1 => Direction::Right,
+                2 => Direction::Down,
+                _ => Direction::Left,
+            }
+        }
+
+        /// TODO: will need more, but wait till there are actually special moves to impliment
+        fn special(&self) -> bool {
+            self.0 & 0b11111100 > 0
+        }
+    }
+
+    struct BoardState(Vec<Bot>);
+
+    impl BoardState {
+        fn adjacent_states(&self, board: &Board) {
+            for bot in self.0.iter() {
+
+            }
+        }
+    }
 }

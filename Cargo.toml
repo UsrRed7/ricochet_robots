@@ -7,5 +7,5 @@ edition = "2021"
 
 [dependencies]
 bit-vec = "0.6.3"
-eframe = { version = "0.26.2", features = ["persistence"] }
+eframe = { version = "0.27.0", features = ["persistence"] }
 serde = { version = "1.0.197", features = ["derive"] }
