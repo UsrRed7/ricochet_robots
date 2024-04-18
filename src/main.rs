@@ -9,7 +9,9 @@ fn main() {
 }
 
 #[derive(Default)]
-struct GUI {}
+struct GUI {
+    buttonstate: bool,
+}
 
 impl GUI {
     #[allow(unused_variables)]
@@ -31,7 +33,19 @@ impl eframe::App for GUI {
     #[allow(unused_variables)]
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("Hello World!");
+            ui.heading("Hello world!");
+        });
+        egui::SidePanel::right("right_panel").show(ctx, |ui| {
+            ui.heading("Side panel...");
+            ui.horizontal(|ui| {
+                ui.label(self.buttonstate.to_string());
+                if ui.button("Play").clicked() {
+                    self.buttonstate = !self.buttonstate;
+                }
+            });
+        });
+        egui::TopBottomPanel::bottom("menu").show(ctx, |ui| {
+            ui.heading("Menu!!");
         });
     }
 }
